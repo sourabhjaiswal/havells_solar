@@ -17,21 +17,10 @@ class HAVELLSSolar : public PollingComponent, public modbus::ModbusDevice {
     this->phases_[phase].setup = true;
     this->phases_[phase].current_sensor_ = current_sensor;
   }
-  void set_active_power_sensor(uint8_t phase, sensor::Sensor *active_power_sensor) {
-    this->phases_[phase].setup = true;
-    this->phases_[phase].active_power_sensor_ = active_power_sensor;
-  }
-  void set_reactive_power_sensor(uint8_t phase, sensor::Sensor *reactive_power_sensor) {
-    this->phases_[phase].setup = true;
-    this->phases_[phase].reactive_power_sensor_ = reactive_power_sensor;
-  }
+  
   void set_frequency_sensor(sensor::Sensor *frequency_sensor) { this->frequency_sensor_ = frequency_sensor; }
-  void set_active_energy_sensor(sensor::Sensor *active_energy_sensor) {
-    this->active_energy_sensor_ = active_energy_sensor;
-  }
-  void set_reactive_energy_sensor(sensor::Sensor *reactive_energy_sensor) {
-    this->reactive_energy_sensor_ = reactive_energy_sensor;
-  }
+  void set_active_power_sensor(sensor::Sensor *active_power_sensor) { this->active_power_sensor_ = active_power_sensor; }
+  void set_reactive_power_sensor(sensor::Sensor *reactive_power_sensor) { this->reactive_power_sensor_ = reactive_power_sensor; }
 
   void update() override;
 
@@ -44,12 +33,10 @@ class HAVELLSSolar : public PollingComponent, public modbus::ModbusDevice {
     bool setup{false};
     sensor::Sensor *voltage_sensor_{nullptr};
     sensor::Sensor *current_sensor_{nullptr};
-    sensor::Sensor *active_power_sensor_{nullptr};
-    sensor::Sensor *reactive_power_sensor_{nullptr};
   } phases_[3];
   sensor::Sensor *frequency_sensor_{nullptr};
-  sensor::Sensor *active_energy_sensor_{nullptr};
-  sensor::Sensor *reactive_energy_sensor_{nullptr};
+  sensor::Sensor *active_power_sensor_{nullptr};
+  sensor::Sensor *reactive_power_sensor_{nullptr};
 };
 
 }  // namespace havells_solar

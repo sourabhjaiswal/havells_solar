@@ -44,16 +44,6 @@ PHASE_SENSORS = {
     CONF_CURRENT: sensor.sensor_schema(
         UNIT_AMPERE, ICON_EMPTY, 3, DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT
     ),
-    CONF_ACTIVE_POWER: sensor.sensor_schema(
-        UNIT_WATT, ICON_EMPTY, 2, DEVICE_CLASS_POWER, STATE_CLASS_MEASUREMENT
-    ),
-    CONF_REACTIVE_POWER: sensor.sensor_schema(
-        UNIT_VOLT_AMPS_REACTIVE,
-        ICON_EMPTY,
-        2,
-        DEVICE_CLASS_POWER,
-        STATE_CLASS_MEASUREMENT,
-    ),
 }
 
 PHASE_SCHEMA = cv.Schema(
@@ -74,15 +64,19 @@ CONFIG_SCHEMA = (
                 DEVICE_CLASS_EMPTY,
                 STATE_CLASS_MEASUREMENT,
             ),
-            cv.Optional(CONF_ACTIVE_ENERGY): sensor.sensor_schema(
-                UNIT_WATT_HOURS, ICON_EMPTY, 2, DEVICE_CLASS_ENERGY, STATE_CLASS_NONE
-            ),
-            cv.Optional(CONF_REACTIVE_ENERGY): sensor.sensor_schema(
-                UNIT_VOLT_AMPS_REACTIVE_HOURS,
+            cv.Optional(CONF_ACTIVE_POWER): sensor.sensor_schema(
+                UNIT_WATT,
                 ICON_EMPTY,
                 2,
-                DEVICE_CLASS_ENERGY,
-                STATE_CLASS_NONE,
+                DEVICE_CLASS_POWER,
+                STATE_CLASS_MEASUREMENT
+            ),
+            cv.Optional(CONF_REACTIVE_POWER): sensor.sensor_schema(
+                UNIT_VOLT_AMPS_REACTIVE,
+                ICON_EMPTY,
+                2,
+                DEVICE_CLASS_POWER,
+                STATE_CLASS_MEASUREMENT,
             ),
         }
     )
@@ -99,14 +93,14 @@ async def to_code(config):
     if CONF_FREQUENCY in config:
         sens = await sensor.new_sensor(config[CONF_FREQUENCY])
         cg.add(var.set_frequency_sensor(sens))
-
-    if CONF_ACTIVE_ENERGY in config:
-        sens = await sensor.new_sensor(config[CONF_ACTIVE_ENERGY])
-        cg.add(var.set_active_energy_sensor(sens))
-
-    if CONF_REACTIVE_ENERGY in config:
-        sens = await sensor.new_sensor(config[CONF_REACTIVE_ENERGY])
-        cg.add(var.set_reactive_energy_sensor(sens))
+        
+    if CONF_ACTIVE_POWER in config:
+        sens = await sensor.new_sensor(config[CONF_ACTIVE_POWER])
+        cg.add(var.set_frequency_sensor(sens))
+        
+    if CONF_REACTIVE_POWER in config:
+        sens = await sensor.new_sensor(config[CONF_REACTIVE_POWER])
+        cg.add(var.set_frequency_sensor(sens))
 
     for i, phase in enumerate([CONF_PHASE_A, CONF_PHASE_B, CONF_PHASE_C]):
         if phase not in config:
