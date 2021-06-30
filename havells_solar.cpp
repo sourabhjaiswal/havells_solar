@@ -7,7 +7,7 @@ namespace havells_solar {
 
 static const char *const TAG = "havells_solar";
 
-static const uint8_t MODBUS_CMD_READ_IN_REGISTERS = 0x04;
+static const uint8_t MODBUS_CMD_READ_IN_REGISTERS = 0x03;
 static const uint8_t MODBUS_REGISTER_COUNT = 80;  // 74 x 16-bit registers
 
 void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
