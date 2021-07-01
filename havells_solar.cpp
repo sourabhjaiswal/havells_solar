@@ -16,12 +16,20 @@ void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
     return;
   }
 
+//  auto havells_solar_get_float = [&](size_t i) -> float {
+//    uint16_t temp = encode_uint16(data[i], data[i + 1]);
+//	temp = temp*1.0f;
+//    float f;
+//    memcpy(&f, &temp, sizeof(f));
+//    return f;
+//  };
+
   auto havells_solar_get_float = [&](size_t i) -> float {
     uint16_t temp = encode_uint16(data[i], data[i + 1]);
-    float f;
-    memcpy(&f, &temp, sizeof(f));
-    return f;
+//    return (float) temp;
+	return temp * 1.0f;
   };
+
 
 //  for (uint8_t i = 0; i < 3; i++) {
 //    auto phase = this->phases_[i];
@@ -41,18 +49,19 @@ void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
 //      phase.current_sensor_->publish_state(current);
 //  }
 
-  float frequency = havells_solar_get_float(HAVELLS_GRID_FREQUENCY);
+  float frequency = havells_solar_get_float(HAVELLS_GRID_FREQUENCY * 2);
 //  float active_power = havells_solar_get_float(HAVELLS_SYSTEM_ACTIVE_POWER);
 //  float reactive_power = havells_solar_get_float(HAVELLS_SYSTEM_REACTIVE_POWER);
 
-  ESP_LOGD(TAG, "HAVELLSSolar: F=%.3f Hz, Active P=%.3f W, Reactive P=%.3f VAR", frequency, active_power, reactive_power);
+  ESP_LOGD(TAG, "HAVELLSSolar: F=%.3f Hz,", frequency);
+//  ESP_LOGD(TAG, "HAVELLSSolar: F=%.3f Hz, Active P=%.3f W, Reactive P=%.3f VAR", frequency, active_power, reactive_power);
 
   if (this->frequency_sensor_ != nullptr)
     this->frequency_sensor_->publish_state(frequency);
-  if (this->active_power_sensor_ != nullptr)
-    this->active_power_sensor_->publish_state(active_power);
-  if (this->reactive_power_sensor_ != nullptr)
-    this->reactive_power_sensor_->publish_state(reactive_power);
+//  if (this->active_power_sensor_ != nullptr)
+//    this->active_power_sensor_->publish_state(active_power);
+//  if (this->reactive_power_sensor_ != nullptr)
+//    this->reactive_power_sensor_->publish_state(reactive_power);
 }
 
 void HAVELLSSolar::update() { this->send(MODBUS_CMD_READ_IN_REGISTERS, 0, MODBUS_REGISTER_COUNT); }
