@@ -8,7 +8,7 @@ namespace havells_solar {
 static const char *const TAG = "havells_solar";
 
 static const uint8_t MODBUS_CMD_READ_IN_REGISTERS = 0x03;
-static const uint8_t MODBUS_REGISTER_COUNT = 44;  // 44 x 16-bit registers
+static const uint8_t MODBUS_REGISTER_COUNT = 48;  // 48 x 16-bit registers
 
 void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
   if (data.size() < MODBUS_REGISTER_COUNT * 2) {
@@ -17,33 +17,33 @@ void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
   }
 
   auto havells_solar_get_float = [&](size_t i) -> float {
-    uint32_t temp = encode_uint32(data[i], data[i + 1], data[i + 2], data[i + 3]);
+    uint16_t temp = encode_uint16(data[i], data[i + 1]);
     float f;
     memcpy(&f, &temp, sizeof(f));
     return f;
   };
 
-  for (uint8_t i = 0; i < 3; i++) {
-    auto phase = this->phases_[i];
-    if (!phase.setup)
-      continue;
+//  for (uint8_t i = 0; i < 3; i++) {
+//    auto phase = this->phases_[i];
+//    if (!phase.setup)
+//      continue;
+//
+//    float voltage = havells_solar_get_float(HAVELLS_PHASE_1_VOLTAGE * 2 + (i * 4));
+//    float current = havells_solar_get_float(HAVELLS_PHASE_1_CURRENT * 2 + (i * 4));
+//
+//    ESP_LOGD(
+//        TAG,
+//        "HAVELLSSolar Phase %c: V=%.3f V, I=%.3f A ",
+//        i + 'A', voltage, current);
+//    if (phase.voltage_sensor_ != nullptr)
+//      phase.voltage_sensor_->publish_state(voltage);
+//    if (phase.current_sensor_ != nullptr)
+//      phase.current_sensor_->publish_state(current);
+//  }
 
-    float voltage = havells_solar_get_float(HAVELLS_PHASE_1_VOLTAGE * 2 + (i * 4));
-    float current = havells_solar_get_float(HAVELLS_PHASE_1_CURRENT * 2 + (i * 4));
-
-    ESP_LOGD(
-        TAG,
-        "HAVELLSSolar Phase %c: V=%.3f V, I=%.3f A ",
-        i + 'A', voltage, current);
-    if (phase.voltage_sensor_ != nullptr)
-      phase.voltage_sensor_->publish_state(voltage);
-    if (phase.current_sensor_ != nullptr)
-      phase.current_sensor_->publish_state(current);
-  }
-
-  float frequency = havells_solar_get_float(HAVELLS_GRID_FREQUENCY * 2);
-  float active_power = havells_solar_get_float(HAVELLS_SYSTEM_ACTIVE_POWER * 2 );
-  float reactive_power = havells_solar_get_float(HAVELLS_SYSTEM_REACTIVE_POWER * 2 );
+  float frequency = havells_solar_get_float(HAVELLS_GRID_FREQUENCY);
+//  float active_power = havells_solar_get_float(HAVELLS_SYSTEM_ACTIVE_POWER);
+//  float reactive_power = havells_solar_get_float(HAVELLS_SYSTEM_REACTIVE_POWER);
 
   ESP_LOGD(TAG, "HAVELLSSolar: F=%.3f Hz, Active P=%.3f W, Reactive P=%.3f VAR", frequency, active_power, reactive_power);
 
