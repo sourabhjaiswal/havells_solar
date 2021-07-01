@@ -10,6 +10,7 @@ from esphome.const import (
     CONF_POWER_FACTOR,
     CONF_REACTIVE_POWER,
     CONF_VOLTAGE,
+    CONF_ENERGY,
     DEVICE_CLASS_CURRENT,
     DEVICE_CLASS_EMPTY,
     DEVICE_CLASS_ENERGY,
@@ -60,22 +61,29 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_FREQUENCY): sensor.sensor_schema(
                 UNIT_HERTZ,
                 ICON_CURRENT_AC,
-                3,
+                2,
                 DEVICE_CLASS_EMPTY,
                 STATE_CLASS_MEASUREMENT,
             ),
             cv.Optional(CONF_ACTIVE_POWER): sensor.sensor_schema(
-                UNIT_WATT,
+                "KW",
                 ICON_EMPTY,
-                2,
+                3,
                 DEVICE_CLASS_POWER,
                 STATE_CLASS_MEASUREMENT
             ),
             cv.Optional(CONF_REACTIVE_POWER): sensor.sensor_schema(
                 UNIT_VOLT_AMPS_REACTIVE,
                 ICON_EMPTY,
-                2,
+                3,
                 DEVICE_CLASS_POWER,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_ENERGY): sensor.sensor_schema(
+                "kWH",
+                ICON_EMPTY,
+                3,
+                DEVICE_CLASS_ENERGY,
                 STATE_CLASS_MEASUREMENT,
             ),
         }
@@ -96,11 +104,15 @@ async def to_code(config):
         
     if CONF_ACTIVE_POWER in config:
         sens = await sensor.new_sensor(config[CONF_ACTIVE_POWER])
-        cg.add(var.set_frequency_sensor(sens))
+        cg.add(var.set_active_power_sensor(sens))
         
     if CONF_REACTIVE_POWER in config:
         sens = await sensor.new_sensor(config[CONF_REACTIVE_POWER])
-        cg.add(var.set_frequency_sensor(sens))
+        cg.add(var.set_reactive_power_sensor(sens))
+
+    if CONF_ENERGY in config:
+        sens = await sensor.new_sensor(config[CONF_ENERGY])
+        cg.add(var.set_today_production_sensor(sens))
 
     for i, phase in enumerate([CONF_PHASE_A, CONF_PHASE_B, CONF_PHASE_C]):
         if phase not in config:
