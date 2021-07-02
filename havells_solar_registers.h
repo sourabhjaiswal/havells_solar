@@ -11,7 +11,6 @@ static const float MULTIPLY_TEN_UNIT = 10;
 
 
 /* PV Input Message */
-
 static const uint16_t HAVELLS_PV_1_VOLTAGE = 0x0006;
 static const uint16_t HAVELLS_PV_1_CURRENT = 0x0007;
 static const uint16_t HAVELLS_PV_2_VOLTAGE = 0x0008;
@@ -32,7 +31,10 @@ static const uint16_t HAVELLS_PHASE_3_CURRENT = 0x0014;
 
 
 /* Inverter Generation message*/
+static const uint16_t HAVELLS_TOTAL_ENERGY_PRODUCTION = 0x0015;
+static const uint16_t HAVELLS_TOTAL_GENERATION_TIME = 0x0017;
 static const uint16_t HAVELLS_TODAY_PRODUCTION = 0x0019;
+static const uint16_t HAVELLS_TODAY_GENERATION_TIME = 0x001A;
 
 
 

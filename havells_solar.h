@@ -26,11 +26,18 @@ class HAVELLSSolar : public PollingComponent, public modbus::ModbusDevice {
     this->pvs_[pv].setup = true;
     this->pvs_[pv].current_sensor_ = current_sensor;
   }
+  void set_active_power_sensor_pv(uint8_t pv, sensor::Sensor *active_power_sensor) {
+    this->pvs_[pv].setup = true;
+    this->pvs_[pv].active_power_sensor_ = active_power_sensor;
+  }
   
   void set_frequency_sensor(sensor::Sensor *frequency_sensor) { this->frequency_sensor_ = frequency_sensor; }
   void set_active_power_sensor(sensor::Sensor *active_power_sensor) { this->active_power_sensor_ = active_power_sensor; }
   void set_reactive_power_sensor(sensor::Sensor *reactive_power_sensor) { this->reactive_power_sensor_ = reactive_power_sensor; }
   void set_today_production_sensor(sensor::Sensor *today_production_sensor) { this->today_production_sensor_ = today_production_sensor; }
+  void set_total_energy_production_sensor(sensor::Sensor *total_energy_production_sensor) { this->total_energy_production_sensor_ = total_energy_production_sensor; }
+  void set_total_generation_time_sensor(sensor::Sensor *total_generation_time_sensor) { this->total_generation_time_sensor_ = total_generation_time_sensor; }
+  void set_today_generation_time_sensor(sensor::Sensor *today_generation_time_sensor) { this->today_generation_time_sensor_ = today_generation_time_sensor; }
 
   void update() override;
 
@@ -48,11 +55,15 @@ class HAVELLSSolar : public PollingComponent, public modbus::ModbusDevice {
     bool setup{false};
     sensor::Sensor *voltage_sensor_{nullptr};
     sensor::Sensor *current_sensor_{nullptr};
+    sensor::Sensor *active_power_sensor_{nullptr};
   } pvs_[2];
   sensor::Sensor *frequency_sensor_{nullptr};
   sensor::Sensor *active_power_sensor_{nullptr};
   sensor::Sensor *reactive_power_sensor_{nullptr};
   sensor::Sensor *today_production_sensor_{nullptr};
+  sensor::Sensor *total_energy_production_sensor_{nullptr};
+  sensor::Sensor *total_generation_time_sensor_{nullptr};
+  sensor::Sensor *today_generation_time_sensor_{nullptr};
 };
 
 }  // namespace havells_solar

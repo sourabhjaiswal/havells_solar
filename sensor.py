@@ -32,12 +32,17 @@ from esphome.const import (
     UNIT_VOLT_AMPS_REACTIVE_HOURS,
     UNIT_WATT,
     UNIT_WATT_HOURS,
+    UNIT_MINUTE,
 )
 
 CONF_ENERGY_PRODUCTION_DAY = "energy_production_day"
+CONF_TOTAL_ENERGY_PRODUCTION = "total_energy_production"
+CONF_TOTAL_GENERAION_TIME = "total_generation_time"
+CONF_TODAY_GENERAION_TIME = "today_generation_time"
 CONF_PV1 = "pv_1"
 CONF_PV2 = "pv_2"
 UNIT_KILOWATT_HOURS = "kWh"
+UNIT_HOURS = "hrs"
 
 AUTO_LOAD = ["modbus"]
 CODEOWNERS = ["@sourabhjaiswal"]
@@ -48,13 +53,16 @@ HAVELLSSolar = havells_solar_ns.class_("HAVELLSSolar", cg.PollingComponent, modb
 PHASE_SENSORS = {
     CONF_VOLTAGE: sensor.sensor_schema(UNIT_VOLT, ICON_EMPTY, 2, DEVICE_CLASS_VOLTAGE),
     CONF_CURRENT: sensor.sensor_schema(
-        UNIT_AMPERE, ICON_EMPTY, 3, DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT
+        UNIT_AMPERE, ICON_EMPTY, 2, DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT
     ),
 }
 PV_SENSORS = {
     CONF_VOLTAGE: sensor.sensor_schema(UNIT_VOLT, ICON_EMPTY, 2, DEVICE_CLASS_VOLTAGE),
     CONF_CURRENT: sensor.sensor_schema(
-        UNIT_AMPERE, ICON_EMPTY, 3, DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT
+        UNIT_AMPERE, ICON_EMPTY, 2, DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT
+    ),
+    CONF_ACTIVE_POWER: sensor.sensor_schema(
+        UNIT_WATT, ICON_EMPTY, 0, DEVICE_CLASS_POWER, STATE_CLASS_MEASUREMENT
     ),
 }
 
@@ -91,15 +99,36 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_REACTIVE_POWER): sensor.sensor_schema(
                 UNIT_VOLT_AMPS_REACTIVE,
                 ICON_EMPTY,
-                3,
+                2,
                 DEVICE_CLASS_POWER,
                 STATE_CLASS_MEASUREMENT,
             ),
             cv.Optional(CONF_ENERGY_PRODUCTION_DAY): sensor.sensor_schema(
                 UNIT_KILOWATT_HOURS,
                 ICON_EMPTY,
-                3,
+                2,
                 DEVICE_CLASS_ENERGY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_TOTAL_ENERGY_PRODUCTION): sensor.sensor_schema(
+                UNIT_KILOWATT_HOURS,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_ENERGY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_TOTAL_GENERAION_TIME): sensor.sensor_schema(
+                UNIT_HOURS,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_TODAY_GENERAION_TIME): sensor.sensor_schema(
+                UNIT_MINUTE,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
                 STATE_CLASS_MEASUREMENT,
             ),
         }
@@ -129,6 +158,18 @@ async def to_code(config):
     if CONF_ENERGY_PRODUCTION_DAY in config:
         sens = await sensor.new_sensor(config[CONF_ENERGY_PRODUCTION_DAY])
         cg.add(var.set_today_production_sensor(sens))
+
+    if CONF_TOTAL_ENERGY_PRODUCTION in config:
+        sens = await sensor.new_sensor(config[CONF_TOTAL_ENERGY_PRODUCTION])
+        cg.add(var.set_total_energy_production_sensor(sens))
+
+    if CONF_TOTAL_GENERAION_TIME in config:
+        sens = await sensor.new_sensor(config[CONF_TOTAL_GENERAION_TIME])
+        cg.add(var.set_total_generation_time_sensor(sens))
+
+    if CONF_TODAY_GENERAION_TIME in config:
+        sens = await sensor.new_sensor(config[CONF_TODAY_GENERAION_TIME])
+        cg.add(var.set_today_generation_time_sensor(sens))
 
     for i, phase in enumerate([CONF_PHASE_A, CONF_PHASE_B, CONF_PHASE_C]):
         if phase not in config:
