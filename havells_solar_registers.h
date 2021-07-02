@@ -7,6 +7,7 @@ namespace havells_solar {
 static const float TWO_DEC_UNIT = 0.01;
 static const float ONE_DEC_UNIT = 0.1;
 static const float NO_DEC_UNIT = 1;
+static const float MULTIPLY_TEN_UNIT = 10;
 
 
 /* PV Input Message */

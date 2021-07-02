@@ -34,6 +34,12 @@ from esphome.const import (
     UNIT_WATT_HOURS,
 )
 
+CONF_ENERGY_PRODUCTION_DAY = "energy_production_day"
+CONF_PV1 = "pv_1"
+CONF_PV2 = "pv_2"
+UNIT_KILOWATT_HOURS = "kWh"
+CONF_PV1_VOLTAGE = "pv1_voltage"
+
 AUTO_LOAD = ["modbus"]
 CODEOWNERS = ["@sourabhjaiswal"]
 
@@ -46,9 +52,18 @@ PHASE_SENSORS = {
         UNIT_AMPERE, ICON_EMPTY, 3, DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT
     ),
 }
+PV_SENSORS = {
+    CONF_VOLTAGE: sensor.sensor_schema(UNIT_VOLT, ICON_EMPTY, 2, DEVICE_CLASS_VOLTAGE),
+    CONF_CURRENT: sensor.sensor_schema(
+        UNIT_AMPERE, ICON_EMPTY, 3, DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT
+    ),
+}
 
 PHASE_SCHEMA = cv.Schema(
     {cv.Optional(sensor): schema for sensor, schema in PHASE_SENSORS.items()}
+)
+PV_SCHEMA = cv.Schema(
+    {cv.Optional(sensor): schema for sensor, schema in PV_SENSORS.items()}
 )
 
 CONFIG_SCHEMA = (
@@ -58,6 +73,8 @@ CONFIG_SCHEMA = (
             cv.Optional(CONF_PHASE_A): PHASE_SCHEMA,
             cv.Optional(CONF_PHASE_B): PHASE_SCHEMA,
             cv.Optional(CONF_PHASE_C): PHASE_SCHEMA,
+            cv.Optional(CONF_PV1): PV_SCHEMA,
+            cv.Optional(CONF_PV2): PV_SCHEMA,
             cv.Optional(CONF_FREQUENCY): sensor.sensor_schema(
                 UNIT_HERTZ,
                 ICON_CURRENT_AC,
@@ -66,9 +83,9 @@ CONFIG_SCHEMA = (
                 STATE_CLASS_MEASUREMENT,
             ),
             cv.Optional(CONF_ACTIVE_POWER): sensor.sensor_schema(
-                "KW",
+                UNIT_WATT,
                 ICON_EMPTY,
-                3,
+                0,
                 DEVICE_CLASS_POWER,
                 STATE_CLASS_MEASUREMENT
             ),
@@ -79,8 +96,15 @@ CONFIG_SCHEMA = (
                 DEVICE_CLASS_POWER,
                 STATE_CLASS_MEASUREMENT,
             ),
-            cv.Optional(CONF_ENERGY): sensor.sensor_schema(
-                "kWH",
+            cv.Optional(CONF_ENERGY_PRODUCTION_DAY): sensor.sensor_schema(
+                UNIT_KILOWATT_HOURS,
+                ICON_EMPTY,
+                3,
+                DEVICE_CLASS_ENERGY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_PV1_VOLTAGE): sensor.sensor_schema(
+                UNIT_VOLT,
                 ICON_EMPTY,
                 3,
                 DEVICE_CLASS_ENERGY,
@@ -110,9 +134,13 @@ async def to_code(config):
         sens = await sensor.new_sensor(config[CONF_REACTIVE_POWER])
         cg.add(var.set_reactive_power_sensor(sens))
 
-    if CONF_ENERGY in config:
-        sens = await sensor.new_sensor(config[CONF_ENERGY])
+    if CONF_ENERGY_PRODUCTION_DAY in config:
+        sens = await sensor.new_sensor(config[CONF_ENERGY_PRODUCTION_DAY])
         cg.add(var.set_today_production_sensor(sens))
+
+    if CONF_PV1_VOLTAGE in config:
+        sens = await sensor.new_sensor(config[CONF_PV1_VOLTAGE])
+        cg.add(var.set_pv1_voltage_sensor(sens))
 
     for i, phase in enumerate([CONF_PHASE_A, CONF_PHASE_B, CONF_PHASE_C]):
         if phase not in config:
@@ -122,4 +150,14 @@ async def to_code(config):
         for sensor_type in PHASE_SENSORS:
             if sensor_type in phase_config:
                 sens = await sensor.new_sensor(phase_config[sensor_type])
+                cg.add(getattr(var, f"set_{sensor_type}_sensor")(i, sens))
+                
+    for i, pv in enumerate([CONF_PV1, CONF_PV2]):
+        if pv not in config:
+            continue
+
+        pv_config = config[pv]
+        for sensor_type in pv_config:
+            if sensor_type in pv_config:
+                sens = await sensor.new_sensor(pv_config[sensor_type])
                 cg.add(getattr(var, f"set_{sensor_type}_sensor")(i, sens))

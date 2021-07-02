@@ -16,45 +16,64 @@ void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
     return;
   }
 
-//  auto havells_solar_get_float = [&](size_t i) -> float {
-//    uint16_t temp = encode_uint16(data[i], data[i + 1]);
-//	temp = temp*1.0f;
-//    float f;
-//    memcpy(&f, &temp, sizeof(f));
-//    return f;
-//  };
+  auto havells_solar_get_2_registers = [&](size_t i,float unit) -> float {
+    uint32_t temp = encode_uint32(data[i], data[i + 1], data[i + 2], data[i + 3]);
+    float f;
+    memcpy(&f, &temp, sizeof(f));
+    return f * unit;
+  };
 
-  auto havells_solar_get_float = [&](size_t i,float unit) -> float {
+  auto havells_solar_get_1_register = [&](size_t i,float unit) -> float {
     uint16_t temp = encode_uint16(data[i], data[i + 1]);
 	return temp * unit ;
   };
 
 
-//  for (uint8_t i = 0; i < 3; i++) {
-//    auto phase = this->phases_[i];
-//    if (!phase.setup)
-//      continue;
-//
-//    float voltage = havells_solar_get_float(HAVELLS_PHASE_1_VOLTAGE * 2 + (i * 4));
-//    float current = havells_solar_get_float(HAVELLS_PHASE_1_CURRENT * 2 + (i * 4));
-//
-//    ESP_LOGD(
-//        TAG,
-//        "HAVELLSSolar Phase %c: V=%.3f V, I=%.3f A ",
-//        i + 'A', voltage, current);
-//    if (phase.voltage_sensor_ != nullptr)
-//      phase.voltage_sensor_->publish_state(voltage);
-//    if (phase.current_sensor_ != nullptr)
-//      phase.current_sensor_->publish_state(current);
-//  }
+  for (uint8_t i = 0; i < 3; i++) {
+    auto phase = this->phases_[i];
+    if (!phase.setup)
+      continue;
 
-  float frequency = havells_solar_get_float(HAVELLS_GRID_FREQUENCY * 2,TWO_DEC_UNIT);
-  float active_power = havells_solar_get_float(HAVELLS_SYSTEM_ACTIVE_POWER * 2,TWO_DEC_UNIT);
-  float reactive_power = havells_solar_get_float(HAVELLS_SYSTEM_REACTIVE_POWER * 2,TWO_DEC_UNIT);
-  float today_production = havells_solar_get_float(HAVELLS_TODAY_PRODUCTION * 2,TWO_DEC_UNIT);
+    float voltage = havells_solar_get_1_register(HAVELLS_PHASE_1_VOLTAGE * 2 + (i * 4),ONE_DEC_UNIT);
+    float current = havells_solar_get_1_register(HAVELLS_PHASE_1_CURRENT * 2 + (i * 4),TWO_DEC_UNIT);
+
+    ESP_LOGD(
+        TAG,
+        "HAVELLSSolar Phase %c: V=%.3f V, I=%.3f A ",
+        i + 'A', voltage, current);
+    if (phase.voltage_sensor_ != nullptr)
+      phase.voltage_sensor_->publish_state(voltage);
+    if (phase.current_sensor_ != nullptr)
+      phase.current_sensor_->publish_state(current);
+  }
+
+  for (uint8_t i = 0; i < 2; i++) {
+    auto pv = this->pvs_[i];
+    if (!pv.setup)
+      continue;
+
+    float voltage = havells_solar_get_1_register(HAVELLS_PV_1_VOLTAGE * 2 + (i * 4),ONE_DEC_UNIT);
+    float current = havells_solar_get_1_register(HAVELLS_PV_1_CURRENT * 2 + (i * 4),TWO_DEC_UNIT);
+
+    ESP_LOGD(
+        TAG,
+        "HAVELLSSolar PV %c: V=%.3f V, I=%.3f A ",
+        i + 'A', voltage, current);
+    if (pv.voltage_sensor_ != nullptr)
+      pv.voltage_sensor_->publish_state(voltage);
+    if (pv.current_sensor_ != nullptr)
+      pv.current_sensor_->publish_state(current);
+  }
+
+  float frequency = havells_solar_get_1_register(HAVELLS_GRID_FREQUENCY * 2,TWO_DEC_UNIT);
+  float active_power = havells_solar_get_1_register(HAVELLS_SYSTEM_ACTIVE_POWER * 2,MULTIPLY_TEN_UNIT);
+  float reactive_power = havells_solar_get_1_register(HAVELLS_SYSTEM_REACTIVE_POWER * 2,TWO_DEC_UNIT);
+  float today_production = havells_solar_get_1_register(HAVELLS_TODAY_PRODUCTION * 2,TWO_DEC_UNIT);
+  float pv1_voltage = havells_solar_get_1_register(HAVELLS_PV_1_VOLTAGE * 2,ONE_DEC_UNIT);
 
 //  ESP_LOGD(TAG, "HAVELLSSolar: F=%.3f Hz,", frequency);
-  ESP_LOGD(TAG, "HAVELLSSolar: F=%.3f Hz, Active P=%.3f KW, Reactive P=%.3f VAR, TodayGeneration E=%.3f kWH", frequency, active_power, reactive_power,today_production);
+  ESP_LOGD(TAG, "HAVELLSSolar: F=%.3f Hz, Active P=%.3f W, Reactive P=%.3f VAR, TodayGeneration E=%.3f kWH", frequency, active_power, reactive_power,today_production);
+  ESP_LOGD(TAG, "HAVELLSSolar: V=%.3f V", pv1_voltage);
 
   if (this->frequency_sensor_ != nullptr)
     this->frequency_sensor_->publish_state(frequency);
@@ -64,24 +83,35 @@ void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
     this->reactive_power_sensor_->publish_state(reactive_power);
   if (this->today_production_sensor_ != nullptr)
     this->today_production_sensor_->publish_state(today_production);
+  if (this->pv1_voltage_sensor_ != nullptr)
+    this->pv1_voltage_sensor_->publish_state(pv1_voltage);
 }
 
 void HAVELLSSolar::update() { this->send(MODBUS_CMD_READ_IN_REGISTERS, 0, MODBUS_REGISTER_COUNT); }
 void HAVELLSSolar::dump_config() {
   ESP_LOGCONFIG(TAG, "HAVELLS Solar:");
   ESP_LOGCONFIG(TAG, "  Address: 0x%02X", this->address_);
-//  for (uint8_t i = 0; i < 3; i++) {
-//    auto phase = this->phases_[i];
-//    if (!phase.setup)
-//      continue;
-//    ESP_LOGCONFIG(TAG, "  Phase %c", i + 'A');
-//    LOG_SENSOR("    ", "Voltage", phase.voltage_sensor_);
-//    LOG_SENSOR("    ", "Current", phase.current_sensor_);
-//  }
+  for (uint8_t i = 0; i < 3; i++) {
+    auto phase = this->phases_[i];
+    if (!phase.setup)
+      continue;
+    ESP_LOGCONFIG(TAG, "  Phase %c", i + 'A');
+    LOG_SENSOR("    ", "Voltage", phase.voltage_sensor_);
+    LOG_SENSOR("    ", "Current", phase.current_sensor_);
+  }
+  for (uint8_t i = 0; i < 2; i++) {
+    auto pv = this->pvs_[i];
+    if (!pv.setup)
+      continue;
+    ESP_LOGCONFIG(TAG, "  PV %c", i + 'A');
+    LOG_SENSOR("    ", "Voltage", pv.voltage_sensor_);
+    LOG_SENSOR("    ", "Current", pv.current_sensor_);
+  }
   LOG_SENSOR("  ", "Frequency", this->frequency_sensor_);
   LOG_SENSOR("    ", "Active Power", this->active_power_sensor_);
   LOG_SENSOR("    ", "Reactive Power", this->reactive_power_sensor_);
   LOG_SENSOR("    ", "Today Generation", this->today_production_sensor_);
+  LOG_SENSOR("    ", "PV1 Voltage", this->pv1_voltage_sensor_);
 }
 
 }  // namespace havells_solar
