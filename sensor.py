@@ -38,7 +38,6 @@ CONF_ENERGY_PRODUCTION_DAY = "energy_production_day"
 CONF_PV1 = "pv_1"
 CONF_PV2 = "pv_2"
 UNIT_KILOWATT_HOURS = "kWh"
-CONF_PV1_VOLTAGE = "pv1_voltage"
 
 AUTO_LOAD = ["modbus"]
 CODEOWNERS = ["@sourabhjaiswal"]
@@ -103,13 +102,6 @@ CONFIG_SCHEMA = (
                 DEVICE_CLASS_ENERGY,
                 STATE_CLASS_MEASUREMENT,
             ),
-            cv.Optional(CONF_PV1_VOLTAGE): sensor.sensor_schema(
-                UNIT_VOLT,
-                ICON_EMPTY,
-                3,
-                DEVICE_CLASS_ENERGY,
-                STATE_CLASS_MEASUREMENT,
-            ),
         }
     )
     .extend(cv.polling_component_schema("10s"))
@@ -138,10 +130,6 @@ async def to_code(config):
         sens = await sensor.new_sensor(config[CONF_ENERGY_PRODUCTION_DAY])
         cg.add(var.set_today_production_sensor(sens))
 
-    if CONF_PV1_VOLTAGE in config:
-        sens = await sensor.new_sensor(config[CONF_PV1_VOLTAGE])
-        cg.add(var.set_pv1_voltage_sensor(sens))
-
     for i, phase in enumerate([CONF_PHASE_A, CONF_PHASE_B, CONF_PHASE_C]):
         if phase not in config:
             continue
@@ -160,4 +148,4 @@ async def to_code(config):
         for sensor_type in pv_config:
             if sensor_type in pv_config:
                 sens = await sensor.new_sensor(pv_config[sensor_type])
-                cg.add(getattr(var, f"set_{sensor_type}_sensor")(i, sens))
+                cg.add(getattr(var, f"set_{sensor_type}_sensor_pv")(i, sens))

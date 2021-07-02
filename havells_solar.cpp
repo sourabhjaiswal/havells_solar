@@ -69,11 +69,8 @@ void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
   float active_power = havells_solar_get_1_register(HAVELLS_SYSTEM_ACTIVE_POWER * 2,MULTIPLY_TEN_UNIT);
   float reactive_power = havells_solar_get_1_register(HAVELLS_SYSTEM_REACTIVE_POWER * 2,TWO_DEC_UNIT);
   float today_production = havells_solar_get_1_register(HAVELLS_TODAY_PRODUCTION * 2,TWO_DEC_UNIT);
-  float pv1_voltage = havells_solar_get_1_register(HAVELLS_PV_1_VOLTAGE * 2,ONE_DEC_UNIT);
 
-//  ESP_LOGD(TAG, "HAVELLSSolar: F=%.3f Hz,", frequency);
   ESP_LOGD(TAG, "HAVELLSSolar: F=%.3f Hz, Active P=%.3f W, Reactive P=%.3f VAR, TodayGeneration E=%.3f kWH", frequency, active_power, reactive_power,today_production);
-  ESP_LOGD(TAG, "HAVELLSSolar: V=%.3f V", pv1_voltage);
 
   if (this->frequency_sensor_ != nullptr)
     this->frequency_sensor_->publish_state(frequency);
@@ -83,8 +80,6 @@ void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
     this->reactive_power_sensor_->publish_state(reactive_power);
   if (this->today_production_sensor_ != nullptr)
     this->today_production_sensor_->publish_state(today_production);
-  if (this->pv1_voltage_sensor_ != nullptr)
-    this->pv1_voltage_sensor_->publish_state(pv1_voltage);
 }
 
 void HAVELLSSolar::update() { this->send(MODBUS_CMD_READ_IN_REGISTERS, 0, MODBUS_REGISTER_COUNT); }
@@ -111,7 +106,6 @@ void HAVELLSSolar::dump_config() {
   LOG_SENSOR("    ", "Active Power", this->active_power_sensor_);
   LOG_SENSOR("    ", "Reactive Power", this->reactive_power_sensor_);
   LOG_SENSOR("    ", "Today Generation", this->today_production_sensor_);
-  LOG_SENSOR("    ", "PV1 Voltage", this->pv1_voltage_sensor_);
 }
 
 }  // namespace havells_solar

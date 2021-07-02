@@ -31,7 +31,6 @@ class HAVELLSSolar : public PollingComponent, public modbus::ModbusDevice {
   void set_active_power_sensor(sensor::Sensor *active_power_sensor) { this->active_power_sensor_ = active_power_sensor; }
   void set_reactive_power_sensor(sensor::Sensor *reactive_power_sensor) { this->reactive_power_sensor_ = reactive_power_sensor; }
   void set_today_production_sensor(sensor::Sensor *today_production_sensor) { this->today_production_sensor_ = today_production_sensor; }
-  void set_pv1_voltage_sensor(sensor::Sensor *pv1_voltage_sensor) { this->pv1_voltage_sensor_ = pv1_voltage_sensor; }
 
   void update() override;
 
@@ -54,7 +53,6 @@ class HAVELLSSolar : public PollingComponent, public modbus::ModbusDevice {
   sensor::Sensor *active_power_sensor_{nullptr};
   sensor::Sensor *reactive_power_sensor_{nullptr};
   sensor::Sensor *today_production_sensor_{nullptr};
-  sensor::Sensor *pv1_voltage_sensor_{nullptr};
 };
 
 }  // namespace havells_solar
