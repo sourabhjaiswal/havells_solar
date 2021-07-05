@@ -17,6 +17,7 @@ from esphome.const import (
     DEVICE_CLASS_POWER,
     DEVICE_CLASS_POWER_FACTOR,
     DEVICE_CLASS_VOLTAGE,
+    DEVICE_CLASS_TEMPERATURE,
     ICON_CURRENT_AC,
     ICON_EMPTY,
     ICON_FLASH,
@@ -43,6 +44,23 @@ CONF_PV1 = "pv_1"
 CONF_PV2 = "pv_2"
 UNIT_KILOWATT_HOURS = "kWh"
 UNIT_HOURS = "hrs"
+UNIT_KOHM = "KΩ"
+UNIT_MILIAMPERE = "mA"
+
+
+CONF_INVERTER_MODULE_TEMP               = "inverter_module_temp"            
+CONF_INVERTER_INNER_TEMP                = "inverter_inner_temp"             
+CONF_INVERTER_BUS_VOLTAGE               = "inverter_bus_voltage"            
+CONF_PV1_VOLTAGE_SAMPLED_BY_SLAVE_CPU   = "pv1_volt_sampled_by_slave_cpu"
+CONF_PV2_VOLTAGE_SAMPLED_BY_SLAVE_CPU   = "pv2_volt_sampled_by_slave_cpu"                    
+CONF_INSULATION_OF_PV1_P_TO_GROUND      = "insulation_pv1_p_to_ground"   
+CONF_INSULATION_OF_PV2_P_TO_GROUND      = "insulation_pv2_p_to_ground"   
+CONF_INSULATION_OF_PV_N_TO_GROUND       = "insulation_pv_n_to_ground"    
+CONF_GFCI_VALUE                         = "gfci_value"                      
+CONF_DCI_OF_R                           = "dci_of_r"                        
+CONF_DCI_OF_S                           = "dci_of_s"                        
+CONF_DCI_OF_T                           = "dci_of_t"                        
+
 
 AUTO_LOAD = ["modbus"]
 CODEOWNERS = ["@sourabhjaiswal"]
@@ -131,6 +149,90 @@ CONFIG_SCHEMA = (
                 DEVICE_CLASS_EMPTY,
                 STATE_CLASS_MEASUREMENT,
             ),
+            cv.Optional(CONF_INVERTER_MODULE_TEMP): sensor.sensor_schema(
+                UNIT_DEGREES,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_INVERTER_INNER_TEMP): sensor.sensor_schema(
+                UNIT_DEGREES,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_INVERTER_BUS_VOLTAGE): sensor.sensor_schema(
+                UNIT_VOLT,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_PV1_VOLTAGE_SAMPLED_BY_SLAVE_CPU): sensor.sensor_schema(
+                UNIT_VOLT,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_PV2_VOLTAGE_SAMPLED_BY_SLAVE_CPU): sensor.sensor_schema(
+                UNIT_VOLT,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_INSULATION_OF_PV1_P_TO_GROUND): sensor.sensor_schema(
+                UNIT_KOHM,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_INSULATION_OF_PV2_P_TO_GROUND): sensor.sensor_schema(
+                UNIT_KOHM,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_INSULATION_OF_PV_N_TO_GROUND): sensor.sensor_schema(
+                UNIT_KOHM,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_GFCI_VALUE): sensor.sensor_schema(
+                UNIT_MILIAMPERE,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_DCI_OF_R): sensor.sensor_schema(
+                UNIT_MILIAMPERE,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_DCI_OF_S): sensor.sensor_schema(
+                UNIT_MILIAMPERE,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_DCI_OF_T): sensor.sensor_schema(
+                UNIT_MILIAMPERE,
+                ICON_EMPTY,
+                0,
+                DEVICE_CLASS_EMPTY,
+                STATE_CLASS_MEASUREMENT,
+            ),
         }
     )
     .extend(cv.polling_component_schema("10s"))
@@ -170,6 +272,54 @@ async def to_code(config):
     if CONF_TODAY_GENERAION_TIME in config:
         sens = await sensor.new_sensor(config[CONF_TODAY_GENERAION_TIME])
         cg.add(var.set_today_generation_time_sensor(sens))
+
+    if CONF_INVERTER_MODULE_TEMP in config:
+        sens = await sensor.new_sensor(config[CONF_INVERTER_MODULE_TEMP])
+        cg.add(var.set_inverter_module_temp_sensor(sens))
+
+    if CONF_INVERTER_INNER_TEMP in config:
+        sens = await sensor.new_sensor(config[CONF_INVERTER_INNER_TEMP])
+        cg.add(var.set_inverter_inner_temp_sensor(sens))
+
+    if CONF_INVERTER_BUS_VOLTAGE in config:
+        sens = await sensor.new_sensor(config[CONF_INVERTER_BUS_VOLTAGE])
+        cg.add(var.set_inverter_bus_voltage_sensor(sens))
+
+    if CONF_PV1_VOLTAGE_SAMPLED_BY_SLAVE_CPU in config:
+        sens = await sensor.new_sensor(config[CONF_PV1_VOLTAGE_SAMPLED_BY_SLAVE_CPU])
+        cg.add(var.set_pv1_volt_sampled_by_slave_cpu_sensor(sens))
+
+    if CONF_PV2_VOLTAGE_SAMPLED_BY_SLAVE_CPU in config:
+        sens = await sensor.new_sensor(config[CONF_PV2_VOLTAGE_SAMPLED_BY_SLAVE_CPU])
+        cg.add(var.set_pv2_volt_sampled_by_slave_cpu_sensor(sens))
+
+    if CONF_INSULATION_OF_PV1_P_TO_GROUND in config:
+        sens = await sensor.new_sensor(config[CONF_INSULATION_OF_PV1_P_TO_GROUND])
+        cg.add(var.set_insulation_pv1_p_to_ground_sensor(sens))
+
+    if CONF_INSULATION_OF_PV2_P_TO_GROUND in config:
+        sens = await sensor.new_sensor(config[CONF_INSULATION_OF_PV2_P_TO_GROUND])
+        cg.add(var.set_insulation_pv2_p_to_ground_sensor(sens))
+
+    if CONF_INSULATION_OF_PV_N_TO_GROUND in config:
+        sens = await sensor.new_sensor(config[CONF_INSULATION_OF_PV_N_TO_GROUND])
+        cg.add(var.set_insulation_pv_n_to_ground_sensor(sens))
+
+    if CONF_GFCI_VALUE in config:
+        sens = await sensor.new_sensor(config[CONF_GFCI_VALUE])
+        cg.add(var.set_gfci_value_sensor(sens))
+
+    if CONF_DCI_OF_R in config:
+        sens = await sensor.new_sensor(config[CONF_DCI_OF_R])
+        cg.add(var.set_dci_of_r_sensor(sens))
+
+    if CONF_DCI_OF_S in config:
+        sens = await sensor.new_sensor(config[CONF_DCI_OF_S])
+        cg.add(var.set_dci_of_s_sensor(sens))
+
+    if CONF_DCI_OF_T in config:
+        sens = await sensor.new_sensor(config[CONF_DCI_OF_T])
+        cg.add(var.set_dci_of_t_sensor(sens))
 
     for i, phase in enumerate([CONF_PHASE_A, CONF_PHASE_B, CONF_PHASE_C]):
         if phase not in config:

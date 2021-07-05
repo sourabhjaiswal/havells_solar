@@ -73,11 +73,31 @@ void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
   float total_energy_production = havells_solar_get_2_registers(HAVELLS_TOTAL_ENERGY_PRODUCTION * 2,NO_DEC_UNIT);
   float total_generation_time = havells_solar_get_2_registers(HAVELLS_TOTAL_GENERATION_TIME * 2,NO_DEC_UNIT);
   float today_generation_time = havells_solar_get_1_register(HAVELLS_TODAY_GENERATION_TIME * 2,NO_DEC_UNIT);
+  float inverter_module_temp = havells_solar_get_1_register(HAVELLS_INVERTER_MODULE_TEMP * 2,NO_DEC_UNIT);
+  float inverter_inner_temp = havells_solar_get_1_register(HAVELLS_INVERTER_INNER_TEMP * 2,NO_DEC_UNIT);
+  float inverter_bus_voltage = havells_solar_get_1_register(HAVELLS_INVERTER_BUS_VOLTAGE * 2,NO_DEC_UNIT);
+  float pv1_volt_sampled_by_slave_cpu = havells_solar_get_1_register(HAVELLS_PV1_VOLTAGE_SAMPLED_BY_SLAVE_CPU * 2,NO_DEC_UNIT);
+  float pv2_volt_sampled_by_slave_cpu = havells_solar_get_1_register(HAVELLS_PV2_VOLTAGE_SAMPLED_BY_SLAVE_CPU * 2,NO_DEC_UNIT);
+  float insulation_pv1_p_to_ground = havells_solar_get_1_register(HAVELLS_INSULATION_OF_PV1_P_TO_GROUND * 2,NO_DEC_UNIT);
+  float insulation_pv2_p_to_ground = havells_solar_get_1_register(HAVELLS_INSULATION_OF_PV2_P_TO_GROUND * 2,NO_DEC_UNIT);
+  float insulation_pv_n_to_ground = havells_solar_get_1_register(HAVELLS_INSULATION_OF_PV_N_TO_GROUND * 2,NO_DEC_UNIT);
+  float gfci_value = havells_solar_get_1_register(HAVELLS_GFCI_VALUE * 2,NO_DEC_UNIT);
+  float dci_of_r = havells_solar_get_1_register(HAVELLS_DCI_OF_R * 2,NO_DEC_UNIT);
+  float dci_of_s = havells_solar_get_1_register(HAVELLS_DCI_OF_S * 2,NO_DEC_UNIT);
+  float dci_of_t = havells_solar_get_1_register(HAVELLS_DCI_OF_T * 2,NO_DEC_UNIT);
 
   ESP_LOGD(TAG, "HAVELLSSolar: F=%.3f Hz, Active P=%.3f W, Reactive P=%.3f VAR, TodayGeneration E=%.3f kWH",
            frequency, active_power, reactive_power,today_production);
   ESP_LOGD(TAG, "HAVELLSSolar: Total Generation E=%.3f kWh, Total Generation Time H=%.3f hrs, Today Generation Time H=%.3f hrs,",
            total_energy_production,total_generation_time,today_generation_time);
+  ESP_LOGD(TAG, "HAVELLSSolar: Inverter Module Temp C=%.3f Degree, Inverter Inner Temp C=%.3f Degree,",
+           inverter_module_temp,inverter_inner_temp);
+  ESP_LOGD(TAG, "HAVELLSSolar: Inverter Bus Voltage V=%.3f V, PV1 Voltage Sampled By Slave CPU V=%.3f V, PV2 Voltage Sampled By Slave CPU V=%.3f V,",
+           inverter_bus_voltage,pv1_volt_sampled_by_slave_cpu,pv2_volt_sampled_by_slave_cpu);
+  ESP_LOGD(TAG, "HAVELLSSolar: Insulation Of PV1+ To Ground OHM=%.3f KΩ, Insulation Of PV2+ To Ground OHM=%.3f KΩ,Insulation Of PV- To Ground OHM=%.3f KΩ,",
+           insulation_pv1_p_to_ground,insulation_pv2_p_to_ground,insulation_pv_n_to_ground);
+  ESP_LOGD(TAG, "HAVELLSSolar: GFCI Value mA=%.3f mA, DCI Of R mA=%.3f mA, DCI Of S mA=%.3f mA, DCI Of T mA=%.3f mA,",
+           gfci_value,dci_of_r,dci_of_s,dci_of_t);
   
   if (this->frequency_sensor_ != nullptr)
     this->frequency_sensor_->publish_state(frequency);
@@ -93,6 +113,30 @@ void HAVELLSSolar::on_modbus_data(const std::vector<uint8_t> &data) {
     this->total_generation_time_sensor_->publish_state(total_generation_time);
   if (this->today_generation_time_sensor_ != nullptr)
     this->today_generation_time_sensor_->publish_state(today_generation_time);
+  if (this->inverter_module_temp_sensor_ != nullptr)
+    this->inverter_module_temp_sensor_->publish_state(inverter_module_temp);
+  if (this->inverter_inner_temp_sensor_ != nullptr)
+    this->inverter_inner_temp_sensor_->publish_state(inverter_inner_temp);
+  if (this->inverter_bus_voltage_sensor_ != nullptr)
+    this->inverter_bus_voltage_sensor_->publish_state(inverter_bus_voltage);
+  if (this->pv1_volt_sampled_by_slave_cpu_sensor_ != nullptr)
+    this->pv1_volt_sampled_by_slave_cpu_sensor_->publish_state(pv1_volt_sampled_by_slave_cpu);
+  if (this->pv2_volt_sampled_by_slave_cpu_sensor_ != nullptr)
+    this->pv2_volt_sampled_by_slave_cpu_sensor_->publish_state(pv2_volt_sampled_by_slave_cpu);
+  if (this->insulation_pv1_p_to_ground_sensor_ != nullptr)
+    this->insulation_pv1_p_to_ground_sensor_->publish_state(insulation_pv1_p_to_ground);
+  if (this->insulation_pv2_p_to_ground_sensor_ != nullptr)
+    this->insulation_pv2_p_to_ground_sensor_->publish_state(insulation_pv2_p_to_ground);
+  if (this->insulation_pv_n_to_ground_sensor_ != nullptr)
+    this->insulation_pv_n_to_ground_sensor_->publish_state(insulation_pv_n_to_ground);
+  if (this->gfci_value_sensor_ != nullptr)
+    this->gfci_value_sensor_->publish_state(gfci_value);
+  if (this->dci_of_r_sensor_ != nullptr)
+    this->dci_of_r_sensor_->publish_state(dci_of_r);
+  if (this->dci_of_s_sensor_ != nullptr)
+    this->dci_of_s_sensor_->publish_state(dci_of_s);
+  if (this->dci_of_t_sensor_ != nullptr)
+    this->dci_of_t_sensor_->publish_state(dci_of_t);
 }
 
 void HAVELLSSolar::update() { this->send(MODBUS_CMD_READ_IN_REGISTERS, 0, MODBUS_REGISTER_COUNT); }
@@ -123,6 +167,18 @@ void HAVELLSSolar::dump_config() {
   LOG_SENSOR("    ", "Total Generation", this->total_energy_production_sensor_);
   LOG_SENSOR("    ", "Total Generation Time", this->total_generation_time_sensor_);
   LOG_SENSOR("    ", "Today Generation Time", this->today_generation_time_sensor_);
+  LOG_SENSOR("    ", "Inverter Module Temp", this->inverter_module_temp_sensor_);
+  LOG_SENSOR("    ", "Inverter Inner Temp", this->inverter_inner_temp_sensor_);
+  LOG_SENSOR("    ", "Inverter Bus Voltage", this->inverter_bus_voltage_sensor_);
+  LOG_SENSOR("    ", "PV1 Voltage Sampled By Slave CPU", this->pv1_volt_sampled_by_slave_cpu_sensor_);
+  LOG_SENSOR("    ", "PV2 Voltage Sampled By Slave CPU", this->pv2_volt_sampled_by_slave_cpu_sensor_);
+  LOG_SENSOR("    ", "Insulation Of PV1+ To Ground", this->insulation_pv1_p_to_ground_sensor_);
+  LOG_SENSOR("    ", "Insulation Of PV2+ To Ground", this->insulation_pv2_p_to_ground_sensor_);
+  LOG_SENSOR("    ", "Insulation Of PV- To Ground", this->insulation_pv_n_to_ground_sensor_);
+  LOG_SENSOR("    ", "GFCI Value", this->gfci_value_sensor_);
+  LOG_SENSOR("    ", "DCI Of R", this->dci_of_r_sensor_);
+  LOG_SENSOR("    ", "DCI Of S", this->dci_of_s_sensor_);
+  LOG_SENSOR("    ", "DCI Of T", this->dci_of_t_sensor_);
 }
 
 }  // namespace havells_solar

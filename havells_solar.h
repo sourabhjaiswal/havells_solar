@@ -35,9 +35,37 @@ class HAVELLSSolar : public PollingComponent, public modbus::ModbusDevice {
   void set_active_power_sensor(sensor::Sensor *active_power_sensor) { this->active_power_sensor_ = active_power_sensor; }
   void set_reactive_power_sensor(sensor::Sensor *reactive_power_sensor) { this->reactive_power_sensor_ = reactive_power_sensor; }
   void set_today_production_sensor(sensor::Sensor *today_production_sensor) { this->today_production_sensor_ = today_production_sensor; }
-  void set_total_energy_production_sensor(sensor::Sensor *total_energy_production_sensor) { this->total_energy_production_sensor_ = total_energy_production_sensor; }
-  void set_total_generation_time_sensor(sensor::Sensor *total_generation_time_sensor) { this->total_generation_time_sensor_ = total_generation_time_sensor; }
-  void set_today_generation_time_sensor(sensor::Sensor *today_generation_time_sensor) { this->today_generation_time_sensor_ = today_generation_time_sensor; }
+  void set_total_energy_production_sensor(sensor::Sensor *total_energy_production_sensor) {
+	this->total_energy_production_sensor_ = total_energy_production_sensor; 
+  }
+  void set_total_generation_time_sensor(sensor::Sensor *total_generation_time_sensor) { 
+    this->total_generation_time_sensor_ = total_generation_time_sensor; 
+  }
+  void set_today_generation_time_sensor(sensor::Sensor *today_generation_time_sensor) { 
+    this->today_generation_time_sensor_ = today_generation_time_sensor;
+  }
+  void set_inverter_module_temp_sensor(sensor::Sensor *inverter_module_temp_sensor) { this->inverter_module_temp_sensor_ = inverter_module_temp_sensor; }
+  void set_inverter_inner_temp_sensor(sensor::Sensor *inverter_inner_temp_sensor) { this->inverter_inner_temp_sensor_ = inverter_inner_temp_sensor; }
+  void set_inverter_bus_voltage_sensor(sensor::Sensor *inverter_bus_voltage_sensor) { this->inverter_bus_voltage_sensor_ = inverter_bus_voltage_sensor; }
+  void set_pv1_volt_sampled_by_slave_cpu_sensor(sensor::Sensor *pv1_volt_sampled_by_slave_cpu_sensor) {
+    this->pv1_volt_sampled_by_slave_cpu_sensor_ = pv1_volt_sampled_by_slave_cpu_sensor; 
+  }
+  void set_pv2_volt_sampled_by_slave_cpu_sensor(sensor::Sensor *pv2_volt_sampled_by_slave_cpu_sensor) {
+    this->pv2_volt_sampled_by_slave_cpu_sensor_ = pv2_volt_sampled_by_slave_cpu_sensor; 
+  }
+  void set_insulation_pv1_p_to_ground_sensor(sensor::Sensor *insulation_pv1_p_to_ground_sensor) {
+    this->insulation_pv1_p_to_ground_sensor_ = insulation_pv1_p_to_ground_sensor; 
+  }
+  void set_insulation_pv2_p_to_ground_sensor(sensor::Sensor *insulation_pv2_p_to_ground_sensor) {
+    this->insulation_pv2_p_to_ground_sensor_ = insulation_pv2_p_to_ground_sensor; 
+  }
+  void set_insulation_pv_n_to_ground_sensor(sensor::Sensor *insulation_pv_n_to_ground_sensor) {
+    this->insulation_pv_n_to_ground_sensor_ = insulation_pv_n_to_ground_sensor; 
+  }
+  void set_gfci_value_sensor(sensor::Sensor *gfci_value_sensor) { this->gfci_value_sensor_ = gfci_value_sensor; }
+  void set_dci_of_r_sensor(sensor::Sensor *dci_of_r_sensor) { this->dci_of_r_sensor_ = dci_of_r_sensor; }
+  void set_dci_of_s_sensor(sensor::Sensor *dci_of_s_sensor) { this->dci_of_s_sensor_ = dci_of_s_sensor; }
+  void set_dci_of_t_sensor(sensor::Sensor *dci_of_t_sensor) { this->dci_of_t_sensor_ = dci_of_t_sensor; }
 
   void update() override;
 
@@ -64,6 +92,18 @@ class HAVELLSSolar : public PollingComponent, public modbus::ModbusDevice {
   sensor::Sensor *total_energy_production_sensor_{nullptr};
   sensor::Sensor *total_generation_time_sensor_{nullptr};
   sensor::Sensor *today_generation_time_sensor_{nullptr};
+  sensor::Sensor *inverter_module_temp_sensor_{nullptr};
+  sensor::Sensor *inverter_inner_temp_sensor_{nullptr};
+  sensor::Sensor *inverter_bus_voltage_sensor_{nullptr};
+  sensor::Sensor *pv1_volt_sampled_by_slave_cpu_sensor_{nullptr};
+  sensor::Sensor *pv2_volt_sampled_by_slave_cpu_sensor_{nullptr};
+  sensor::Sensor *insulation_pv1_p_to_ground_sensor_{nullptr};
+  sensor::Sensor *insulation_pv2_p_to_ground_sensor_{nullptr};
+  sensor::Sensor *insulation_pv_n_to_ground_sensor_{nullptr};
+  sensor::Sensor *gfci_value_sensor_{nullptr};
+  sensor::Sensor *dci_of_r_sensor_{nullptr};
+  sensor::Sensor *dci_of_s_sensor_{nullptr};
+  sensor::Sensor *dci_of_t_sensor_{nullptr};
 };
 
 }  // namespace havells_solar
